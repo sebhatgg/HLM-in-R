@@ -1,0 +1,14 @@
+# HLM-in-R
+Multilevel model in R
+HLM is an OLS that requires all assumptions met except the independence of errors assumption. The assumption is likely violated as HLM allows data across clusters to be correlated. By employing the ggdensity() and ggqqplot() function in R programming, it is easy to verify the normality of the distribution. Since all the dependent variables are correlated, one variable, the values domain variable, will be checked for normality. 
+HLM is used across a variety of disciplines to examine multilevel effects. For instance, in organizational research,
+one may investigate how employee interactions differ by the type of organization the employees belong to (e.g., corporate compared to local) (Anderson, 2012).
+In this project, HLM can be employed to investigate the gender effect on leaders’ decision-making process. The ‘ValuesDomain,’ ‘MediatorDomain,’
+and the ‘FulfillmentDomain’ variables will be used in the model creation process. The ‘Gender’ variable will be an independent categorical variable. 
+The lme() function is the tool employed to create the HLM model. The lme() function is part of the nlme or lme4 packages in the  R programming tool. 
+The simplest form of HLM, the intercept-only model, will first be created using the gls() function. 
+The gls function enables errors to be correlated and to have heterogeneous variances, which are likely the case for clustered data. 
+The lm() function is for linear regression, and the lme() is for multilevel regression. Then the models with affecting variables will be created, 
+and the model’s outcome reveals critical numbers as to whether to accept or reject the null hypothesis.
+The p-value in the first output from the gls() function is below 0.05, indicating significance. The three dependent variables in the decision-making process part of the dataset are different from zero. The random intercept model (leadmod2) also shows the p-value is less than 0.05. The third model with added variables was also created (leadmod3.). Comparing the three models can hint if there is a significant difference in model fitting. 
+An effective way of explaining HLM is to compare and contrast it to the methods or models used to analyze nested data before HLM’s development. The AIC for all three models is different, indicating the difference in model fitting. The lower the AIC, the better the model fit. The third model (leadmod3) has the lowest AIC value, indicating the best model. The p-value of 0.0001 also indicates the results are highly significant. Adding the two dependent variables in the model improves the model’s performance. The null hypothesis is rejected in this case, and it can be concluded that the gender variable affects the dependent variables, and there is a difference between different level models
