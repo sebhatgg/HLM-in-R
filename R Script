@@ -1,0 +1,116 @@
+#loading data into R
+leadership <- TIM8525
+view(leadership)
+
+#missing values and data preparation
+sum(is.na(leadership))
+sum(is.na(leadership$CountryOther))
+is.na(leadership)
+is.na(leadership$Country) 
+clean_leader <- subset(leadership, select = -CountryOther)
+view(clean_leader)
+clean_leader2 <-clean_leader %>%
+  filter(Country != 'NA')%>%
+  filter(Age !='NA')%>%
+  filter(Gender != 'NA')%>%
+  filter(CollarColor !='NA')%>%
+  filter(ValuesDomain !='NA')%>%
+  filter(ValuesDomain >= 6) %>%
+  filter(MediatorDomain >= 6)%>%
+  filter(FulfillmentDomain >= 6)
+
+sum(is.na(clean_leader2))
+clean_leader2
+
+#plot
+
+par(mfrow=c(2,2))
+boxplot(clean_leader$ValuesDomain, main="ValueDomain")
+boxplot(clean_leader$Durationinseconds, main="Durationinseconds")
+boxplot(clean_leader$FulfillmentDomain, main="FulfillmentDomain")
+boxplot(clean_leader$MediatorDomain, main="MediatorDomain")
+
+
+
+#boxplots after outliers removed
+
+boxplot(clean_leader2$ValuesDomain, main="ValueDomain")
+boxplot(clean_leader2$Durationinseconds, main="Durationinseconds")
+boxplot(clean_leader2$FulfillmentDomain, main="FulfillmentDomain")
+boxplot(clean_leader2$MediatorDomain, main="MediatorDomain")
+
+
+#Converting variables to factors
+
+clean_leader2$Gender <- as.factor(clean_leader2$Gender)
+clean_leader2$Education <- as.factor(clean_leader2$Education)
+clean_leader2$Country <- as.factor(clean_leader2$Country)
+clean_leader2$Employment <- as.factor(clean_leader2$Employment)
+clean_leader2$CollarColor <- as.factor(clean_leader2$CollarColor)
+
+#Plots
+
+mainplot3 <- ggplot(clean_leader2, aes(ValuesDomain, MediatorDomain + FulfillmentDomain,  color = Gender)) + geom_point() + stat_smooth(method = lm) + labs(title = "ValueDomain Vs Mediator Domain with Gender") +  ylab("Mediator Domain")
+mainplot3
+
+mainplot4 <- ggplot(clean_leader2, aes(ValuesDomain,  FulfillmentDomain,  color = Employment)) + geom_point() + stat_smooth(method = lm) + labs(title = "ValueDomain Vs Fulflliment Domain with Employment") +  ylab("Fulfullment Domain")
+mainplot4
+
+
+boxplot(outcome1, main="Dependent variables with no outliers")
+
+plot(clean_leader2$ValuesDomain, clean_leader2$FulfillmentDomain, col = clean_leader2$Gender, pch=16, main="Scatter plot for the two dependent variables ")
+
+#preparation for model creation
+outcome1 <- cbind(clean_leader2$ValuesDomain, clean_leader2$MediatorDomain, clean_leader2$FulfillmentDomain)
+outcome1
+
+
+#Assumptions test
+par(mfrow=c(2,4))
+ggdensity(clean_leader2$ValuesDomain, main="Density plot for Values Domain")
+ggdensity(clean_leader2$MediatorDomain, main="Density plot for Mediator Domain")
+ggdensity(clean_leader2$FulfillmentDomain, main="Density plot for Fulfillment Domain")
+
+ggqqplot(clean_leader2, "ValuesDomain",facet.by = "Gender", main="QQ plot for Values Domain", ylab = "Values Domain")
+ggqqplot(clean_leader2$MediatorDomain, main="QQ plot for Mediator Domain")
+ggqqplot(clean_leader2$FulfillmentDomain, main="QQ plot for Fulfillment")
+
+shapiro.test(clean_leader2$ValuesDomain)
+
+clean_leader2%>%
+  select(ValuesDomain, MediatorDomain, FulfillmentDomain)%>%
+  mshapiro_test()
+clean_leader2%>% cor_test(ValuesDomain, MediatorDomain, FulfillmentDomain)
+
+box_m(clean_leader2[, c("ValuesDomain", "MediatorDomain", "FulfillmentDomain")], clean_leader2$Gender)
+
+
+#Independence test
+ICC(clean_leader2[,42:44])
+
+
+#HLM1
+
+leadmod1 <- gls(ValuesDomain ~ 1, data = clean_leader2, method = "ML", na.action = "na.omit")
+summary(leadmod1)
+
+leadmod2 <- lme(ValuesDomain~1, data = clean_leader2, method = "ML", na.action = "na.omit", random = ~1|Gender)
+summary(leadmod2)
+
+leadmod3 <- lme(ValuesDomain~MediatorDomain + FulfillmentDomain, data = clean_leader2, method = "ML", na.action = "na.omit", random = ~1|Gender)
+summary(leadmod3)
+
+anova(leadmod1, leadmod2, leadmod3)
+
+#HLM2
+
+leadmod21 <- gls(ValuesDomain ~ 1, data = clean_leader2, method = "ML", na.action = "na.omit")
+summary(leadmod21)
+
+leadmod21 <- lme(ValuesDomain~1, data = clean_leader2, method = "ML", na.action = "na.omit", random = ~1|Education)
+summary(leadmod21)
+
+anova(leadmod1, leadmod2)
+
+
